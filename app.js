@@ -46,10 +46,25 @@ function scoreModel(model) {
     if (model.weight <= 2.2) score += 1;
   } else if (answers.home === "large") {
     score += model.power;
+  } else if (answers.home === "flat") {
+    // マンション・フラット：段差が少ないのでコンパクトなモデルが有利
+    score += model.storageScore;
   }
 
-  // 収納スペース
-  if (answers.storage === "small") score += model.storageScore;
+  // バッテリー（連続使用時間）
+  if (answers.battery === "short") {
+    // 30分以内で十分：軽量PencilVac系も十分に対応
+    if (model.batteryMin <= 30) score += 2;
+  } else if (answers.battery === "medium") {
+    // 40〜60分：V8・Digital Slim・V12が有利
+    if (model.batteryMin >= 40) score += 2;
+    else                        score -= 1;
+  } else if (answers.battery === "long") {
+    // 60分以上：V12（60分）・Digital Slim（2バッテリーで80分）が有利
+    if (model.batteryMin >= 60)      score += 3;
+    else if (model.batteryMin >= 40) score += 1;
+    else                             score -= 2;
+  }
 
   // 価格への意識
   if (answers.budget === "value") {
@@ -96,7 +111,11 @@ function getReasonText(model) {
     reasons.push("超スリムなボディで家具の下まで、フローリングを隅々まで掃除できます");
   if (answers.floor === "hard" && model.id === "v12")
     reasons.push("Fluffy Optic™ LEDでフローリングの見えないほこりを可視化して徹底清掃できます");
-  if (answers.storage === "small" && model.storageScore === 3)
+  if (answers.battery === "long" && model.batteryMin >= 60)
+    reasons.push(`最長${model.batteryMin}分の大容量バッテリーで、広い家も一気に掃除できます`);
+  if (answers.battery === "medium" && model.batteryMin >= 40)
+    reasons.push(`最長${model.batteryMin}分連続使用でき、一通りの掃除を余裕でこなせます`);
+  if (answers.home === "small" && model.storageScore === 3)
     reasons.push("コンパクトで省スペースに収納できます");
   if (answers.home === "large" && model.power === 3)
     reasons.push("広い家でも十分なパワーで一気に掃除できます");

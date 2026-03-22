@@ -46,6 +46,9 @@ function scoreModel(model) {
     if (model.weight <= 2.2) score += 1;
   } else if (answers.home === "large") {
     score += model.power;
+  } else if (answers.home === "flat") {
+    // マンション・フラット：段差が少ないのでコンパクトなモデルが有利
+    score += model.storageScore;
   }
 
   // 収納スペース
@@ -196,7 +199,7 @@ function buildModelCardHTML(model, isTop, matchPct = 100) {
           </div>
           <div class="model-price">${model.price}</div>
         </div>
-        ${model.imageUrl ? `<img class="model-image" src="${model.imageUrl}" alt="${model.name}" loading="lazy" />` : ""}
+        ${model.imageUrl ? `<img class="model-image" src="${model.imageUrl}" alt="${model.name}" width="110" height="110" loading="lazy" />` : ""}
       </div>
       <div class="model-card-body">
         <div class="match-bar-row">
@@ -209,8 +212,8 @@ function buildModelCardHTML(model, isTop, matchPct = 100) {
         <div class="model-reason">${getReasonText(model)}</div>
         <div class="model-specs">${highlightChips}${normalChips}</div>
         <div class="model-links">
-          ${model.amazonUrl ? `<a class="btn-amazon" href="${model.amazonUrl}" target="_blank" rel="noopener">Amazonで見る</a>` : ""}
-          ${model.url ? `<a class="btn-official" href="${model.url}" target="_blank" rel="noopener">公式サイト</a>` : ""}
+          ${model.amazonUrl ? `<a class="btn-amazon" href="${model.amazonUrl}" target="_blank" rel="noopener" aria-label="${model.name}をAmazonで見る（新しいタブ）">Amazonで見る</a>` : ""}
+          ${model.url ? `<a class="btn-official" href="${model.url}" target="_blank" rel="noopener" aria-label="${model.name}の公式サイト（新しいタブ）">公式サイト</a>` : ""}
         </div>
       </div>
     </div>
@@ -228,6 +231,7 @@ function updateProgress() {
 
   document.getElementById("progressFill").style.width = pct + "%";
   document.getElementById("progressPct").textContent  = pct + "%";
+  document.getElementById("progressBar").setAttribute("aria-valuenow", pct);
   document.getElementById("progressText").textContent =
     currentQ < total ? `質問 ${currentQ + 1} / ${total}` : "診断完了";
 }
@@ -238,7 +242,7 @@ function renderQuestion() {
   const card = document.getElementById("questionCard");
 
   const optionsHTML = q.options.map(opt => `
-    <button class="option-btn" onclick="selectOption('${q.id}', '${opt.value}')">
+    <button class="option-btn" aria-label="${opt.title}" onclick="selectOption('${q.id}', '${opt.value}')">
       <div class="option-icon">${opt.icon}</div>
       <div class="option-content">
         <span class="option-title">${opt.title}</span>

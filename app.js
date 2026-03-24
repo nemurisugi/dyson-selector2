@@ -306,6 +306,7 @@ function renderResult() {
     ${buildModelCardHTML(top, true, 100)}
     ${alsoGood.map(({ model, pct }) => buildModelCardHTML(model, false, pct)).join("")}
     ${buildAnswerSummaryHTML()}
+    <a class="compare-all-btn" href="compare.html">全機種を比較する →</a>
     <button class="restart-btn" onclick="restart()">もう一度診断する</button>
   `;
 }
